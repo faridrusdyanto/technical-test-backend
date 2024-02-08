@@ -19,7 +19,7 @@ export class UserService {
   async findById(id: string): Promise<User> {
     const user = await this.userModel.findById(id)
     if (!user) {
-      throw new NotFoundException('User not fount')
+      throw new NotFoundException('User not found')
     }
     return user
   }
@@ -32,5 +32,20 @@ export class UserService {
     }
     const res = await  this.userModel.create(data)
     return res
+  }
+
+  async updateById(id: string, user: User): Promise<User> {
+    if (user.password) {
+      user.password = await hash(user.password, 10)
+    }
+    
+    return await this.userModel.findByIdAndUpdate(id, user, {
+      new: true,
+      runValidators: true
+    })
+  }
+
+  async deleteById(id: string): Promise<User> {
+    return await this.userModel.findByIdAndDelete(id)
   }
 }
